@@ -1,0 +1,1 @@
+My Golang server version of S. Grider's 'GraphQL with React: The Complete Developers Guide'

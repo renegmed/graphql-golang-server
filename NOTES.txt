@@ -1,0 +1,3 @@
+Status: working
+
+This is my server go version of Udemy's course on 'GraphQL with React: The Complete Developers Guide' by S Grider  
