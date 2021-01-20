@@ -3,6 +3,10 @@ services:
   mongodb:
     container_name: mongodb
     image: mongo
+    environment:
+      MONGO_INITDB_DATABASE: songdb
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: pass123
     volumes:
       - "./mongodb-data:/data/db"
     networks:

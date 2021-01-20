@@ -10,8 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const URI = "mongodb://admin:pass123@localhost:27017"
-
 type DB struct {
 	Client *mongo.Client
 }
@@ -28,8 +26,7 @@ func connect() *DB {
 	var client *mongo.Client
 
 	once.Do(func() {
-		// client, err = mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
-		client, err = mongo.NewClient(options.Client().ApplyURI(URI))
+		client, err = mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 		if err != nil {
 			log.Fatal(err)
 		}
