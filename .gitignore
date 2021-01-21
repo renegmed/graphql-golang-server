@@ -1,2 +1,4 @@
 /mongodb-data
 server.go.original
+tls/cert.pem
+tls/key.pem

@@ -29,7 +29,7 @@ func main() {
 	router.Use(cors.Default())
 
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+	corsConfig.AllowOrigins = []string{"https://localhost:3000"}
 	// To be able to send tokens to the server.
 	corsConfig.AllowCredentials = true
 
@@ -41,7 +41,7 @@ func main() {
 	router.POST("/query", graphqlHandler(db))
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 
-	router.Run(":" + port)
+	router.RunTLS(":"+port, "./tls/cert.pem", "./tls/key.pem")
 }
 
 // Defining the Graphql handler
