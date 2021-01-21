@@ -5,13 +5,13 @@ import (
 	"lyrical-app/database"
 	"lyrical-app/graph"
 	"lyrical-app/graph/generated"
-	"net/http"
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/go-chi/chi"
-	"github.com/rs/cors"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 const defaultPort = "8080"
@@ -23,21 +23,39 @@ func main() {
 	}
 
 	db := database.NewDb()
-	router := chi.NewRouter()
-	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"},
-		AllowCredentials: true,
-		Debug:            true,
-	}).Handler)
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver(db)}))
+	// router := chi.NewRouter()
+	router := gin.Default()
+	router.Use(cors.Default())
 
-	// http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	// http.Handle("/query", srv)
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+	// To be able to send tokens to the server.
+	corsConfig.AllowCredentials = true
 
-	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	router.Handle("/query", srv)
+	// OPTIONS method for ReactJS
+	corsConfig.AddAllowMethods("OPTIONS")
+	router.Use(cors.New(corsConfig))
 
+	router.GET("/", playgroundHandler())
+	router.POST("/query", graphqlHandler(db))
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+
+	router.Run(":" + port)
+}
+
+// Defining the Graphql handler
+func graphqlHandler(db *database.DB) gin.HandlerFunc {
+	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver(db)}))
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+// Defining the Playground handler
+func playgroundHandler() gin.HandlerFunc {
+	h := playground.Handler("GraphQL", "/query")
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
 }
